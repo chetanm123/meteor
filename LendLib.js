@@ -17,7 +17,7 @@ if (Meteor.isClient) {
   }
   Session.set('adding_category',false);
   
-  Template.categories.net_cat=function(){
+  Template.categories.new_cat=function(){
 	  return Session.equals('adding_category',true);
   };
 
@@ -26,8 +26,27 @@ if (Meteor.isClient) {
 		  Session.set('adding_category',true);
 		  Meteor.flush();
 		  focusText(t.find("#add-category"));
+	  },
+		
+	  'keyup #add-category':function(e,t){
+		  if(e.which===13){
+			  var catVal = String(e.target.value || "");
+			  if(catVal){
+				  lists.insert({Category:catVal});
+				  Session.set('adding_category',false);
+			  }
+		  }
+	  },
+		
+	  'focusout #add-category':function(e,t){
+		  Session.set('adding_category',false);
 	  }
   });
+
+  function focusText(i){
+	  i.focus();
+	  i.select();
+  }
 }
 
 if (Meteor.isServer) {
