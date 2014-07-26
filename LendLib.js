@@ -21,6 +21,13 @@ if (Meteor.isClient) {
 	  return Session.equals('adding_category',true);
   };
 
+  Template.categories.list_status=function(){
+	  if(Session.equals('current_list',this._id))
+		  return "";
+	  else
+		  return "btn-inverse";
+  };
+
   Template.categories.events({
 	  'click #btnNewCat':function(e,t){
 		  Session.set('adding_category',true);
@@ -40,14 +47,60 @@ if (Meteor.isClient) {
 		
 	  'focusout #add-category':function(e,t){
 		  Session.set('adding_category',false);
-	  }
+	  },
+	  'click .category':selectCategory
   });
 
   function focusText(i){
 	  i.focus();
 	  i.select();
   }
+
+  function selectCategory(e,t){
+	  console.log(this._id);
+	  Session.set('current_list',this._id);
+  }
+
+  Template.list.items=function(){
+	  if(Session.equals('current_list',null))
+		  return null;
+	  else{
+		  var cats = lists.findOne({_id:Session.get('current_list')});
+		  
+		  if(cats && cats.items){
+				
+			  for(var i=0;i<cats.items.length;i++){
+				  var d = cats.items[i];
+				  d.Lendee=d.LentTo?d.LentTo:"free";
+				  d.LendClass = d.LentTo?"label-important":"label-success";
+			  }
+			  return cats.items;
+		  }
+	  }
+  }
+
+  Template.list.list_selected=function(){
+	  return ((Session.get('current_lists')!=null)&&(!Session.equals('current_list',null)));
+  }
+
+  Template.list.list_adding=function(){
+	  return Session.equals('list_adding',true);
+  };
+
+  Template.list.lendee_editing=function(){
+	  return Session.equals('lendee_input',this.Name);
+  };
+
+  Template.list.events({
+	  'click #btnAddItem':function(e,t){
+		Session.set('list_adding',true);
+		Meteor.flush();
+		focusText(t.find('#item_to_add'));
+	  }
+  });
 }
+
+
 
 if (Meteor.isServer) {
 	lists = new Meteor.Collection("Lists");
