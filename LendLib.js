@@ -1,5 +1,9 @@
 if (Meteor.isClient) {
 	lists = new Meteor.Collection("Lists");
+	Meteor.subscribe("Categories");
+	Meteor.autosubscribe(function(){
+		Meteor.subscribe("listdetails",Session.get('current_list'));
+	});
   Template.hello.greeting = function () {
     return "My List";
   };
@@ -55,8 +59,9 @@ function selectCategory(e,t){
 	  'click .category':selectCategory
   });
 
-  function focusText(i){
+  function focusText(i,val){
 	  i.focus();
+	  i.value=val?val:"";
 	  i.select();
   }
 
@@ -168,5 +173,13 @@ if (Meteor.isServer) {
 	lists = new Meteor.Collection("Lists");
   Meteor.startup(function () {
     // code to run on server at startup
+  });
+
+  Meteor.publish("Categories",function(){
+	  return lists.find({},{fields:{Category:1}});
+  });
+
+  Meteor.publish("listdetails",function(category_id){
+	  return lists.find({_id:category_id});
   });
 }
