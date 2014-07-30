@@ -40,7 +40,12 @@
 		{{#each items}}
 			<li class="lending_item alert">
 				<button type="button" class="close delete_item" id="{{Name}}">x</button>
-					{{Name}}
+				{{#if item_editing}}
+					<input type="text" id="item_edit" class="span2 pull-left" value="" />
+					{{else}}
+					<span id="item_name">{{Name}}</span>
+				{{/if}}
+
 				{{#if lendee_editing}}
 					<input type="text" id="edit_lendee" class="span2 pull-right" value="" />
 					{{else}}

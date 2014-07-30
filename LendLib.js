@@ -97,6 +97,20 @@ function selectCategory(e,t){
 	  }
   }
 
+  function updateName(list_id,item_name,new_item_name){
+	var l = lists.findOne({"_id":list_id,"items.Name":item_name});
+	if(l&&l.items){
+		for(var i=0;i<l.items.length;i++)
+		{
+			if(l.items[i].Name === item_name)
+			{
+				l.items[i].Name = new_item_name;
+			}
+		}
+		lists.update({"_id":list_id},{$set:{"items":l.items}});
+	}
+  }
+
   Template.list.items=function(){
 	  if(Session.equals('current_list',null))
 		  return null;
@@ -125,6 +139,10 @@ function selectCategory(e,t){
 
   Template.list.lendee_editing=function(){
 	  return Session.equals('lendee_input',this.Name);
+  };
+
+  Template.list.item_editing=function(){
+	return Session.equals('item_editing',this.Name);
   };
 
   Template.list.events({
@@ -163,6 +181,21 @@ function selectCategory(e,t){
 		  if(e.which===27){
 			  Session.set('lendee_input',null);
 		  }
+	  },
+	
+	  'click #item_name':function(e,t){
+		Session.set("item_editing",this.Name);
+		Meteor.flush();
+		focusText(t.find("#item_edit"),this.Name);
+	  },
+
+	  'focusout #item_edit':function(e,t){
+			updateName(Session.get('current_list'),this.Name,e.target.value);
+			Session.set("item_editing",null);
+	  },
+
+	  'keyup #item_edit':function(e,t){
+		  
 	  }
   });
 }
